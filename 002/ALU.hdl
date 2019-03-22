@@ -1,0 +1,35 @@
+CHIP ALU {
+		IN x[16],y[16],zx,nx,zy,ny,f,no;
+		OUT out[16],zr,ng;
+
+		PARTS:
+		DMux16(in=x,sel=zx,a=ax1,b=bx1);
+		Xor16(a=x,b=bx1,out=m1);
+		And16(a=ax1,b=m1,out=n1);
+		DMux16(in=n1,sel=nx,a=ax3,b=bx3);
+		Not16(in=bx3,out=notbx3);
+		Mux16(a=ax3,b=notbx3,sel=nx,out=k1);
+
+		DMux16(in=y,sel=zy,a=ay1,b=by1);
+		Xor16(a=y,b=by1,out=m2);
+		And16(a=ay1,b=m2,out=n2);
+		DMux16(in=n2,sel=ny,a=ay3,b=by3);
+		Not16(in=by3,out=notby3);
+		Mux16(a=ay3,b=notby3,sel=ny,out=k2);
+
+		DMux16(in=k1,sel=f,a=ax2,b=bx2);
+		DMux16(in=k2,sel=f,a=ay2,b=by2);
+
+		And16(a=ax2,b=ay2,out=p1);
+		Add16(a=bx2,b=by2,out=p2);
+
+		Mux16(a=p1,b=p2,sel=f,out=r);
+		
+		DMux16(in=r,sel=no,a=a3,b=b3);
+		Not16(in=b3,out=notb3);
+		Mux16(a=a3,b=notb3,sel=no,out=out1);
+		Or16Way(in=out1,out=zr2);
+		Not(in=zr2,out=zr);
+		IsNo16(in=out1,out=ng);
+		Or16(a=out1,b=false,out=out);
+	}
