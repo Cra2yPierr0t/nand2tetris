@@ -1,0 +1,10 @@
+CHIP ROM32K {
+        IN address[15];
+        OUT out[16];
+
+        PARTS:
+        RAM16K(in=false,address=address[0..13],load=false,out=w1);
+        RAM16K(in=false,address=address[0..13],load=false,out=w2);
+
+        Mux16(a=w1,b=w2,sel=address[14],out=out);
+    }
