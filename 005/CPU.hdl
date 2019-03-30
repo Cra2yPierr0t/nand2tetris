@@ -3,7 +3,29 @@ CHIP CPU {
 		OUT outM[16],writeM,addressM[15],pc[15];
 
 		PARTS:
-		
+		And(a=instruction[15],b=instruction[4],out=h);
+        And(a=instruction[15],b=instruction[5],out=o);
+        And(a=instruction[15],b=instruction[12],out=j);
+        Not(in=instruction[15],out=n);
+        Or(a=o,b=n,out=i);
+        
+        Mux16(a=f,b=instruction,sel=n,out=a);
+        ARegister(in=a,load=i,out=b1,out[0..14]=addressM);
+        Mux16(a=b1,b=inM,sel=j,out=c);
+        PC(in=b1,inc=true,reset=reset,load=e,out[0..14]=pc);
+        
+        DRegister(in=f,load=h,out=g);
+        
+        ALU(x=g,y=c,zx=instruction[11],nx=instruction[10],zy=instruction[9],ny=instruction[8],f=instruction[7],no=instruction[6],zr=p,ng=q,out=outM,out=f);
 
+        And(a=p,b=instruction[1],out=k);
+        And(a=q,b=instruction[2],out=l);
+        Or(a=p,b=q,out=u);
+        Not(in=u,out=v);
+        Or(a=k,b=l,out=m);
+        And(a=v,b=instruction[0],out=w);
+        Or(a=w,b=m,out=s);
+        And(a=s,b=instruction[15],out=e);
 
+        And(a=instruction[3],b=instruction[15],out=writeM);
 	}
