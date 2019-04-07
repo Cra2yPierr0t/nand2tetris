@@ -1,4 +1,6 @@
 //usage ./Assembler filename.asm
+//TODO .hackファイルのオープン
+
 #define COMMAND_SIZE 10
 #include<stdio.h>
 #include<stdlib.h>
@@ -60,10 +62,11 @@ void Converter(char &command,char &command_bit){
 
     x = Parser(command);
     command_bit = Code(x);
-
     }
 
-
+void Parser(char &command){
+    
+    }
 
 
 
