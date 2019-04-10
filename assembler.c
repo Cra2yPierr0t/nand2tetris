@@ -1,7 +1,15 @@
 //usage ./Assembler filename.asm
 //TODO .hackファイルのオープン
 
-#define COMMAND_SIZE 10
+#define COMMAND_SIZE 1024
+
+#define A_COMMAND 0
+#define C_COMMAND 1
+#define SYMBOL 2
+
+#define TRUE 1
+#define FAULSE 0
+
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
@@ -10,7 +18,7 @@ void Converter();       //変換器 アセンブラ本体
 
 void Parser();          //パースするやつ
 void hasMoreCommands(); //変換すべきコマンドが残っているか？ [注意]いらないかも
-void advance();         //次のコマンドを参照する
+void advance();         //次のコマンドを参照する[注意]いらないかも
 void commandType();     //現在参照してるコマンドのタイプを調べる ex)A命令 C命令 シンボル
 void symbol();          //現在のシンボルを返す [注意]現在仕様を理解していない！！！
 void dest();            //C命令のdest部分を返す     
@@ -32,6 +40,8 @@ typedef struct parsed {
     char dest[COMMAND_SIZE];
     char comp[COMMAND_SIZE];
     char jump[COMMAND_SIZE];
+    char symbol[COMMAND_SIZE];
+    char address[COMMAND_SIZE];
     };
 
 int main(int argc,char *argv[]){
@@ -64,15 +74,182 @@ void Converter(char &command,char &command_bit){
     command_bit = Code(x);
     }
 
-void Parser(char &command){
-    
+void Parser(char &command){     //MEMO ;とか=とかで考えると良さそう
+    parsed x;
+    x.command_type = commandType(command);
+
+    if(x.command_type == SYMBOL ){
+        x.symbol = SymbolTable(command);
+        x.dest = NULL;
+        x.comp = NULL;
+        x.jump = NULL;
+        x.address = NULL;
+        return x;
+    }else if(x.command_type == A_COMMAND){
+        x.address = SymbolTable(command);
+        x.dest = NULL;
+        x.comp = NULL;
+        x.jump = NULL;
+        x.symbol = NULL;
+        return x;
+    }else if(x.command_type == C_COMMAND){  //ここはelseで省略可
+        x.dest = dest(command);
+        x.comp = comp(command);
+        x.jump = jump(command);
+        x.address = NULL;
+        x.symbol = NULL;
+        return x;
+        }
     }
 
+int command_type(char &command){
+    if(command[0] == '@'){
+        return A_COMMAND;
+        }else if(command[0] == '('){
+        return SYMBOL;
+        }else{
+        return C_COMMAND;
+        }
+    }
 
+void dest(char &command){
+    int i=0;
+    char dest[3];
 
+    while(command[i] != '=' && command[i] != ';');  //配列上の=か;の位置を特定する
+        i++;
 
+    if(command[i] == '='){                          //;だったらjump命令なのでNULLを挿れる
+        for(int j=0;j<i;j++){
+            dest[j] = command[j];
+            }
+        }else{
+            dest = NULL;
+        }
+        
+        return dest;
+    }
 
+void comp(char &command){
+    //むずい
+    }
 
+void jump(char &command){
+    int i=0;
+    char jump[4];
 
+    while(command[i] != '=' && command[i] != ';');
+        i++;
 
+    if(command[i] == ';'){
+        jump[0] = strlen(command) - 3;
+        jump[1] = strlen(command) - 2;
+        jump[2] = strlen(command) - 1;
+        }else{
+            jump = NULL;
+        }
 
+    return jump;
+    }
+
+void Code(parsed x){            //111a cccc ccdd djjj
+    char bin[COMMAND_SIZE];
+    bin = strcat("111",strcat(comp_bin(x.comp),strcat(dest_bin(x.dest),jump_bin(x.jump))));
+    bin[strlen(bin)] = '\n';            //改行コードをケツに挿れる
+    return bin;
+    }
+
+void comp_bin(&comp){
+    char c[7];
+    char a = '0';
+    if(strcmp(comp,"0") == 0){
+        strcpy(c,"101010");
+    }else if(strcmp(comp,"1") == 0){
+        strcpy(c,"111111")
+    }else if(strcmp(comp,"-1") == 0){
+        strcpy(c,"111010");
+    }else if(strcmp(comp,"D") == 0){
+        strcpy(c,"001100");
+    }else if(strcmp(comp,"A") == 0){
+        strcpy(c,"110000");
+    }else if(strcmp(comp,"!D") == 0){
+        strcpy(c,"001101");
+    }else if(strcmp(comp,"!A") == 0){
+        strcpy(c,"110001");
+    }else if(strcmp(comp,"-D") == 0){
+        strcpy(c,"001111");
+    }else if(strcmp(comp,"-A") == 0){
+        strcpy(c,"110011");
+    }else if(strcmp(comp,"D+1") == 0){
+        strcpy(c,"011111");
+    }else if(strcmp(comp,"A+1") == 0){
+        strcpy(c,"110111");
+    }else if(strcmp(comp,"D-1") == 0){
+        strcpy(c,"001110");
+    }else if(strcmp(comp,"A-1") == 0){
+        strcpy(c,"110010");
+    }else if(strcmp(comp,"D+A") == 0){
+        strcpy(c,"000010");
+    }else if(strcmp(comp,"D-A") == 0){
+        strcpy(c,"010011");
+    }else if(strcmp(comp,"A-D") == 0){
+        strcpy(c,"000111");
+    }else if(strcmp(comp,"D&A") == 0){
+        strcpy(c,"000000");
+    }else if(strcmp(comp,"D|A") == 0){
+        strcpy(c,"010101");
+    }else if(strcmp(comp,"M") == 0){
+        strcpy(c,"110000");
+        a = '1';
+    }else if(strcmp(comp,"!M") == 0){
+        strcpy(c,"110000");
+        a = '1';
+    }else if(strcmp(comp,"-M") == 0){
+        strcpy(c,"110011");
+        a = '1';
+    }else if(strcmp(comp,"M+1") == 0){
+        strcpy(c,"110111");
+        a = '1';
+    }else if(strcmp(comp,"M-1") == 0){
+        strcpy(c,"110010");
+        a = '1';
+    }else if(strcmp(comp,"D+M") == 0){
+        strcpy(c,"000010");
+        a = '1';
+    }else if(strcmp(comp,"D-M") == 0){
+        strcpy(c,"010011");
+        a = '1';
+    }else if(strcmp(comp,"M-D") == 0){
+        strcpy(c,"000111");
+        a = '1';
+    }else if(strcmp(comp,"D&M") == 0){
+        strcpy(c,"000000");
+        a = '1';
+    }else if(strcmp(comp,"D|M") == 0){
+        strcpy(c,"010101");
+        a = '1';
+    }
+    return strcat(a,c);
+}
+
+void dest_bin(&dest){
+    char d[3];
+    char A='0';
+    char M='0';
+    char D='0';
+    for(int i=0;i<strlen(dest);i++){
+        if(dest[i] == 'A'){
+            A = '1';
+        }else if(dest[i] == 'M'){
+            M = '1';
+        }else if(dest[i] == 'D'){
+            D = '1';
+        }
+    }
+
+    d[0] = A;
+    d[1] = D;
+    d[2] = M;
+
+    return dest_bin;
+    }
