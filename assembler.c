@@ -105,16 +105,16 @@ void Parser(char &command){     //MEMO ;とか=とかで考えると良さそう
 int command_type(char &command){
     if(command[0] == '@'){
         return A_COMMAND;
-        }else if(command[0] == '('){
+    }else if(command[0] == '('){
         return SYMBOL;
-        }else{
+    }else{
         return C_COMMAND;
         }
     }
 
 void dest(char &command){
     int i=0;
-    char dest[3];
+    char dest[COMMAND_SIZE]={\0};
 
     while(command[i] != '=' && command[i] != ';');  //配列上の=か;の位置を特定する
         i++;
@@ -123,30 +123,47 @@ void dest(char &command){
         for(int j=0;j<i;j++){
             dest[j] = command[j];
             }
-        }else{
-            dest = NULL;
-        }
+    }else{
+        dest = NULL;
+    }
         
         return dest;
     }
 
-void comp(char &command){
-    //むずい
-    }
-
-void jump(char &command){
+void comp(char &command){       //;と=で処理を分ける
     int i=0;
-    char jump[4];
+    int k=0;
+    char comp[COMMAND_SIZE]={'\0'};
 
     while(command[i] != '=' && command[i] != ';');
         i++;
 
+    if(command[i] == '='){
+        for(int j=i+1;j<=(strlen(command)-1);j++){
+            comp[k]=command[j];
+            }
+    }else{
+        for(int j=0;j<i;j++){
+            comp[j] = command[j];
+            }
+    }
+    return comp;
+    }
+
+void jump(char &command){
+    int i=0;
+    int k=0;
+    char jump[4];
+
+    while(command[i] != ';' && command[i] != '=');
+        i++;
     if(command[i] == ';'){
-        jump[0] = strlen(command) - 3;
-        jump[1] = strlen(command) - 2;
-        jump[2] = strlen(command) - 1;
-        }else{
-            jump = NULL;
+        for(int j=i+1;j<=(strlen(command)-1);j++){
+            jump[k]=command[j];
+            k++
+        }
+    }else{
+        jump={'\0'};
         }
 
     return jump;
@@ -232,8 +249,8 @@ void comp_bin(&comp){
     return strcat(a,c);
 }
 
-void dest_bin(&dest){
-    char d[3];
+void dest_bin(char &dest){
+    char d[4]={'\0'};
     char A='0';
     char M='0';
     char D='0';
@@ -251,5 +268,31 @@ void dest_bin(&dest){
     d[1] = D;
     d[2] = M;
 
-    return dest_bin;
+    return d;
+    }
+
+void jump_bin(char &jump){
+    char j[4];
+    if(jump[0] == '\0'){
+        strcpy(j,"000");
+    }else if(strcmp(jump,"JGT") == 0){
+        strcpy(j,"001");
+    }else if(strcmp(jump,"JEQ") == 0){
+        strcpy(j,"010");
+    }else if(strcpy(jump,"JGE") == 0){
+        strcpy(j,"011");
+    }else if(strcpy(jump,"JLT") == 0){
+        strcpy(j,"100");
+    }else if(strcpy(jump,"JNE") == 0){
+        strcpy(j,"101");
+    }else if(strcmp(jump,"JLE") == 0){
+        strcpy(j,"110");
+    }else if(strcmp(jump,"JMP") == 0){
+        strcpy(j,"111");
+    }
+    return j;
+}
+
+void SymbolTable(){
+    
     }
