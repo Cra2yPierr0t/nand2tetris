@@ -14,35 +14,39 @@
 #include<stdlib.h>
 #include<string.h>
 
-void Converter();       //変換器 アセンブラ本体
-
-void Parser();          //パースするやつ
-void hasMoreCommands(); //変換すべきコマンドが残っているか？ [注意]いらないかも
-void advance();         //次のコマンドを参照する[注意]いらないかも
-void commandType();     //現在参照してるコマンドのタイプを調べる ex)A命令 C命令 シンボル
-void symbol();          //現在のシンボルを返す [注意]現在仕様を理解していない！！！
-void dest();            //C命令のdest部分を返す     
-void comp();            //C命令のcomp部分を返す     dest=comp;jump
-void jump();            //C命令のjump部分を返す
-
-void Code();            //コマンドをバイナリに変換するやつ
-void dest_bin();        //C命令のdest部分をバイナリに変換する
-void comp_bin();        //C命令のcomp部分をバイナリに変換する
-void jump_bin();        //C命令のjump部分をバイナリに変換する
-
-void SymbolTable();     //シンボル扱うやつ
-void addEntry();        //テーブルにシンボルとアドレスのペアを追加
-void contains();        //与えられたシンボルはテーブルに存在するか？
-void getAddress();      //与えられたシンボルに対応するアドレスを返す
-
-typedef struct parsed {
+typedef struct parsed_ {
     int command_type;       //A_COMMAND C_COMMAND SYMBOL
     char dest[COMMAND_SIZE];
     char comp[COMMAND_SIZE];
     char jump[COMMAND_SIZE];
     char symbol[COMMAND_SIZE];
     char address[COMMAND_SIZE];
-    };
+    }parsed;
+
+typedef struct string_ {
+    char str[1024]={'\0'};
+    }string;
+
+void Converter(char *,char *);       //変換器 アセンブラ本体
+
+parsed Parser();          //パースするやつ
+void hasMoreCommands(); //変換すべきコマンドが残っているか？ [注意]いらないかも
+void advance();         //次のコマンドを参照する[注意]いらないかも
+void commandType();     //現在参照してるコマンドのタイプを調べる ex)A命令 C命令 シンボル
+void symbol();          //現在のシンボルを返す [注意]現在仕様を理解していない！！！
+string dest();            //C命令のdest部分を返す     
+string comp();            //C命令のcomp部分を返す     dest=comp;jump
+string jump();            //C命令のjump部分を返す
+
+string Code();            //コマンドをバイナリに変換するやつ
+string dest_bin();        //C命令のdest部分をバイナリに変換する
+string comp_bin();        //C命令のcomp部分をバイナリに変換する
+string jump_bin();        //C命令のjump部分をバイナリに変換する
+
+void SymbolTable();     //シンボル扱うやつ
+void addEntry();        //テーブルにシンボルとアドレスのペアを追加
+void contains();        //与えられたシンボルはテーブルに存在するか？
+void getAddress();      //与えられたシンボルに対応するアドレスを返す
 
 int main(int argc,char *argv[]){
     FILE *asm_file,*bin_file;
@@ -56,7 +60,6 @@ int main(int argc,char *argv[]){
 
     while(fgets(command,1024,asm_file) != NULL){        //コマンドを行ごとに読み込む ファイル終端に達したら終了
         Converter(command,command_bin);
-        command_bin[strlen(command_bin) - 1] = '\n';
         command_bin[strlen(command_bin)] = '\0';
         fputs(command_bin,bin_file);                    //.hackファイルに書き込む
         }
@@ -67,14 +70,14 @@ int main(int argc,char *argv[]){
     return 0;
     }
 
-void Converter(char &command,char &command_bit){
+void Converter(char *command,char *command_bit){
     parsed x;
 
     x = Parser(command);
     command_bit = Code(x);
     }
 
-void Parser(char &command){     //MEMO ;とか=とかで考えると良さそう
+parsed Parser(char *command){     //MEMO ;とか=とかで考えると良さそう
     parsed x;
     x.command_type = commandType(command);
 
@@ -93,73 +96,93 @@ void Parser(char &command){     //MEMO ;とか=とかで考えると良さそう
         x.symbol = NULL;
         return x;
     }else if(x.command_type == C_COMMAND){  //ここはelseで省略可
-        x.dest = dest(command);
-        x.comp = comp(command);
-        x.jump = jump(command);
+        strcpy(x.dest,dest(command).str);
+        strcpy(x.comp,comp(command).str);
+        strcpy(x.jump,jump(command).str);
         x.address = NULL;
         x.symbol = NULL;
         return x;
         }
     }
 
-int command_type(char &command){
+int command_type(char *command){
     if(command[0] == '@'){
         return A_COMMAND;
-        }else if(command[0] == '('){
+    }else if(command[0] == '('){
         return SYMBOL;
-        }else{
+    }else{
         return C_COMMAND;
         }
     }
 
-void dest(char &command){
+string dest(char *command){
     int i=0;
-    char dest[3];
+    string dest;
 
     while(command[i] != '=' && command[i] != ';');  //配列上の=か;の位置を特定する
         i++;
 
     if(command[i] == '='){                          //;だったらjump命令なのでNULLを挿れる
         for(int j=0;j<i;j++){
-            dest[j] = command[j];
+            dest.str[j] = command[j];
             }
-        }else{
-            dest = NULL;
-        }
+    }else{
+        dest.str = NULL;
+    }
         
         return dest;
     }
 
-void comp(char &command){
-    //むずい
-    }
-
-void jump(char &command){
+string comp(char *command){       //;と=で処理を分ける
     int i=0;
-    char jump[4];
+    int k=0;
+    string comp;
 
     while(command[i] != '=' && command[i] != ';');
         i++;
 
+    if(command[i] == '='){
+        for(int j=i+1;j<=(strlen(command)-1);j++){
+            comp.str[k]=command[j];
+            }
+    }else{
+        for(int j=0;j<i;j++){
+            comp.str[j] = command[j];
+            }
+    }
+    return comp;
+    }
+
+string jump(char *command){
+    int i=0;
+    int k=0;
+    string jump;
+
+    while(command[i] != ';' && command[i] != '=');
+        i++;
     if(command[i] == ';'){
-        jump[0] = strlen(command) - 3;
-        jump[1] = strlen(command) - 2;
-        jump[2] = strlen(command) - 1;
-        }else{
-            jump = NULL;
+        for(int j=i+1;j<=(strlen(command)-1);j++){
+            jump.str[k]=command[j];
+            k++
         }
+    }
 
     return jump;
     }
 
-void Code(parsed x){            //111a cccc ccdd djjj
+string Code(parsed x){            //111a cccc ccdd djjj
+    string bins;
     char bin[COMMAND_SIZE];
-    bin = strcat("111",strcat(comp_bin(x.comp),strcat(dest_bin(x.dest),jump_bin(x.jump))));
+    strcpy(bin,"111");
+    strcat(bin,comp_bin(x.comp).str);
+    strcat(bin,dest_bin(x.dest).str);
+    strcat(bin,jump_bin(x.jump).str);
     bin[strlen(bin)] = '\n';            //改行コードをケツに挿れる
-    return bin;
+    strcpy(bins.str,bin);
+    return bins;
     }
 
-void comp_bin(&comp){
+string comp_bin(char *comp){
     char c[7];
     char a = '0';
     if(strcmp(comp,"0") == 0){
@@ -229,11 +252,15 @@ void comp_bin(&comp){
         strcpy(c,"010101");
         a = '1';
     }
-    return strcat(a,c);
+    string ac;
+    strcpy(ac.str,a);
+    strcat(ac.str,c);
+    
+    return ac;
 }
 
-void dest_bin(&dest){
-    char d[3];
+string dest_bin(char *dest){
+    char d[4]={'\0'};
     char A='0';
     char M='0';
     char D='0';
@@ -251,5 +278,35 @@ void dest_bin(&dest){
     d[1] = D;
     d[2] = M;
 
-    return dest_bin;
+    string dstru;
+    strcpy(dstru.str,d);
+    return dstru;
+    }
+
+string jump_bin(char &jump){
+    char j[4];
+    if(jump[0] == '\0'){
+        strcpy(j,"000");
+    }else if(strcmp(jump,"JGT") == 0){
+        strcpy(j,"001");
+    }else if(strcmp(jump,"JEQ") == 0){
+        strcpy(j,"010");
+    }else if(strcpy(jump,"JGE") == 0){
+        strcpy(j,"011");
+    }else if(strcpy(jump,"JLT") == 0){
+        strcpy(j,"100");
+    }else if(strcpy(jump,"JNE") == 0){
+        strcpy(j,"101");
+    }else if(strcmp(jump,"JLE") == 0){
+        strcpy(j,"110");
+    }else if(strcmp(jump,"JMP") == 0){
+        strcpy(j,"111");
+    }
+    string jjjj;
+    strcpy(jjjj.str,j);
+    return jjjj;
+}
+
+void SymbolTable(){
+    
     }
