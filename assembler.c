@@ -58,6 +58,19 @@ int main(int argc,char *argv[]){
         exit(EXIT_FAILURE);
         }
 
+    char hackfilename[1024];
+    strcpy(hackfilename,argv[1]);
+    hackfilename[strlen(hackfilename) - 3] = 'h';
+    hackfilename[strlen(hackfilename) - 2] = 'a';
+    hackfilename[strlen(hackfilename) - 1] = 'c';
+    hackfilename[strlen(hackfilename)] = 'k';
+    hackfilename[strlen(hackfilename) + 1] = '\0';
+
+    if(bin_file = fopen(hackfilename,"w+") == NULL){
+        perror("cannot open/make filename.hack file\n");
+        exit(EXIT_FAILURE);
+        }
+
     while(fgets(command,1024,asm_file) != NULL){        //コマンドを行ごとに読み込む ファイル終端に達したら終了
         Converter(command,command_bin);
         command_bin[strlen(command_bin)] = '\0';
