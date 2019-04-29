@@ -1,5 +1,5 @@
 //usage ./Assembler filename.asm
-
+//シンボルは普通変数として利用しないのでアドレスが被ってもいい
 char filename[512];
 
 #define COMMAND_SIZE 512
@@ -47,10 +47,13 @@ void addEntry(char *);        //テーブルにシンボルとアドレスのペ
 int contain(char *);        //与えられたシンボルはテーブルに存在するか？
 int getAddress(char *);      //与えられたシンボルに対応するアドレスを返す
 string address_binarizer(int);
+void generate_symboltableV2();
 
 int main(int argc,char *argv[]){
 
     strcpy(filename,argv[1]);
+
+    generate_symboltableV2();
 
     FILE *asm_file,*bin_file;
     char command[1024];     //コマンド[注意]1024文字以上の変数名を使われると死ぬ
@@ -339,19 +342,19 @@ string jump_bin(char *jump){
 string SymbolTable(char *command){
     int address = 0;
     string address_str;
-    generate_table();
     if(command[0] == '('){
         strcpy(address_str.str,"\0");
         return address_str;
     }else if(command[0] == '@'){
+        command[0] = '(';
+        command[strlen(command) - 1] = ')';
         if(contain(command) == TRUE){
             address = getAddress(command);
             strcpy(address_str.str,address_binarizer(address).str);
             return address_str;
         }else if(contain(command) == FAULSE){
-            addEntry(command);
-            strcpy(address_str.str,"\0");
-            return address_str;
+            perror("[ERROR]unknown\n");
+            exit(EXIT_FAILURE);
         }
     }
 }
@@ -363,17 +366,6 @@ void generate_table(){
         perror("Can not make/read/write symboltable\n");
         exit(EXIT_FAILURE);
         }
-        
-    fputs("SP 0\n",symboltable);
-    fputs("LCL 1\n",symboltable);
-    fputs("ARG 2\n",symboltable);
-    fputs("THIS 3\n",symboltable);
-    fputs("THAT 4\n",symboltable);
-    fputs("SCREEN 16384\n",symboltable);
-    fputs("KBD 24576\n",symboltable);
-    for(int i=0;i<16;i++){
-        fprintf(symboltable,"R%d %d\n",i,i);
-    }
     fclose(symboltable);
 }
 
@@ -441,7 +433,7 @@ int contain(char *command){
         perror("Can not open symboltable\n");
         exit(EXIT_FAILURE);
         }
-    command[strlen(command)-1] = '\0';
+    command[strlen(command)] = '\0';
     while(fgets(buffer,1024,symboltable) != NULL){
         if(strcmp(command,strtok(buffer," ")) == 0){
             return TRUE;
@@ -468,4 +460,40 @@ string address_binarizer(int address){
         }
     address_bin.str[strlen(address_bin.str)] = '\n';
     return address_bin;
+    }
+
+void generate_symboltableV2(){
+    int counter = 0;
+    char buffer[1024];
+    FILE *symboltable,*asm_file;
+    symboltable = fopen("symboltable","w+");
+    asm_file = fopen(filename,"r");
+    
+    if(symboltable == NULL || asm_file == NULL){
+        perror("[ERROR]\n");
+        exit(EXIT_FAILURE);
+        }
+        
+    fputs("SP 0\n",symboltable);
+    fputs("LCL 1\n",symboltable);
+    fputs("ARG 2\n",symboltable);
+    fputs("THIS 3\n",symboltable);
+    fputs("THAT 4\n",symboltable);
+    fputs("SCREEN 16384\n",symboltable);
+    fputs("KBD 24576\n",symboltable);
+    for(int i=0;i<16;i++){
+        fprintf(symboltable,"R%d %d\n",i,i);
+    }
+
+    while(fgets(buffer,1024,asm_file) != NULL){
+        buffer[strlen(buffer)-1]='\0';
+        if(buffer[0] == '('){
+            fprintf(symboltable,"%s %d\n",buffer,counter);
+        }else{
+            counter++;
+            }
+        }
+
+    fclose(symboltable);
+    fclose(asm_file);
     }
