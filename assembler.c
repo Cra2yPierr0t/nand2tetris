@@ -1,8 +1,8 @@
 //usage ./Assembler filename.asm
+//シンボルは普通変数として利用しないのでアドレスが被ってもいい
+char filename[512];
 
-char filename[1024];
-
-#define COMMAND_SIZE 1024
+#define COMMAND_SIZE 512
 
 #define A_COMMAND 0
 #define C_COMMAND 1
@@ -47,10 +47,13 @@ void addEntry(char *);        //テーブルにシンボルとアドレスのペ
 int contain(char *);        //与えられたシンボルはテーブルに存在するか？
 int getAddress(char *);      //与えられたシンボルに対応するアドレスを返す
 string address_binarizer(int);
+void generate_symboltableV2();
 
 int main(int argc,char *argv[]){
 
     strcpy(filename,argv[1]);
+
+    generate_symboltableV2();
 
     FILE *asm_file,*bin_file;
     char command[1024];     //コマンド[注意]1024文字以上の変数名を使われると死ぬ
@@ -144,6 +147,7 @@ string dest(char *command){
 
     int i=0;
     string dest;
+    strcpy(dest.str,"\0\0\0\0\0\0\0\0\0");
 
     while(command[i] != '=' && command[i] != ';'){  //配列上の=か;の位置を特定する
                 i++;
@@ -163,7 +167,10 @@ string dest(char *command){
 string comp(char *command){       //;と=で処理を分ける
     int i=0;
     int k=0;
+    char null_null[512] = {"\0"};
     string comp;
+    comp.str[strlen(comp.str) - 1] = '\0';
+    strcpy(comp.str,null_null);
 
     while(command[i] != '=' && command[i] != ';'){
         i++;
@@ -174,12 +181,13 @@ string comp(char *command){       //;と=で処理を分ける
             comp.str[k]=command[j];
             k++;
             }
+        comp.str[strlen(comp.str)-1] = '\0';
     }else{
         for(int j=0;j<i;j++){
             comp.str[j] = command[j];
             }
+        comp.str[i] = '\0'; //change
     }
-    comp.str[strlen(comp.str)-1] = '\0';
     return comp;
     }
 
@@ -187,6 +195,7 @@ string jump(char *command){
     int i=0;
     int k=0;
     string jump;
+    strcpy(jump.str,"\0\0\0\0\0\0\0\0\0");
 
     while(command[i] != ';' && command[i] != '='){
         i++;
@@ -204,6 +213,7 @@ string jump(char *command){
 
 string Code(parsed x){            //111a cccc ccdd djjj
     string bins;
+    strcpy(bins.str,"\0\0\0\0\0\0\0\0\0");
     char bin[COMMAND_SIZE]={"\0"};
     if(x.command_type == C_COMMAND){
         strcpy(bin,"111");
@@ -211,7 +221,6 @@ string Code(parsed x){            //111a cccc ccdd djjj
         strcat(bin,dest_bin(x.dest).str);
         strcat(bin,jump_bin(x.jump).str);
         bin[strlen(bin)] = '\n';            //改行コードをケツに挿れる
-        printf(bin);/////////
     }else if(x.command_type == SYMBOL){
         strcpy(bin,"\0");
     }else if(x.command_type == A_COMMAND){
@@ -222,80 +231,68 @@ string Code(parsed x){            //111a cccc ccdd djjj
     }
 
 string comp_bin(char *comp){
-    char c[7];
-    char a[2] = "0\0";
+    char c[9]={"\0"};
     if(strcmp(comp,"0") == 0){
-        strcpy(c,"101010");
+        strcpy(c,"0101010");
     }else if(strcmp(comp,"1") == 0){
-        strcpy(c,"111111");
+        strcpy(c,"0111111");
     }else if(strcmp(comp,"-1") == 0){
-        strcpy(c,"111010");
+        strcpy(c,"0111010");
     }else if(strcmp(comp,"D") == 0){
-        strcpy(c,"001100");
+        strcpy(c,"0001100");
     }else if(strcmp(comp,"A") == 0){
-        strcpy(c,"110000");
+        strcpy(c,"0110000");
     }else if(strcmp(comp,"!D") == 0){
-        strcpy(c,"001101");
+        strcpy(c,"0001101");
     }else if(strcmp(comp,"!A") == 0){
-        strcpy(c,"110001");
+        strcpy(c,"0110001");
     }else if(strcmp(comp,"-D") == 0){
-        strcpy(c,"001111");
+        strcpy(c,"0001111");
     }else if(strcmp(comp,"-A") == 0){
-        strcpy(c,"110011");
+        strcpy(c,"0110011");
     }else if(strcmp(comp,"D+1") == 0){
-        strcpy(c,"011111");
+        strcpy(c,"0011111");
     }else if(strcmp(comp,"A+1") == 0){
-        strcpy(c,"110111");
+        strcpy(c,"0110111");
     }else if(strcmp(comp,"D-1") == 0){
-        strcpy(c,"001110");
+        strcpy(c,"0001110");
     }else if(strcmp(comp,"A-1") == 0){
-        strcpy(c,"110010");
+        strcpy(c,"0110010");
     }else if(strcmp(comp,"D+A") == 0){
-        strcpy(c,"000010");
+        strcpy(c,"0000010");
     }else if(strcmp(comp,"D-A") == 0){
-        strcpy(c,"010011");
+        strcpy(c,"0010011");
     }else if(strcmp(comp,"A-D") == 0){
-        strcpy(c,"000111");
+        strcpy(c,"0000111");
     }else if(strcmp(comp,"D&A") == 0){
-        strcpy(c,"000000");
+        strcpy(c,"0000000");
     }else if(strcmp(comp,"D|A") == 0){
-        strcpy(c,"010101");
+        strcpy(c,"0010101");
     }else if(strcmp(comp,"M") == 0){
-        strcpy(c,"110000");
-        a[0] = '1';
+        strcpy(c,"1110000");
     }else if(strcmp(comp,"!M") == 0){
-        strcpy(c,"110000");
-        a[0] = '1';
+        strcpy(c,"1110000");
     }else if(strcmp(comp,"-M") == 0){
-        strcpy(c,"110011");
-        a[0] = '1';
+        strcpy(c,"1110011");
     }else if(strcmp(comp,"M+1") == 0){
-        strcpy(c,"110111");
-        a[0] = '1';
+        strcpy(c,"1110111");
     }else if(strcmp(comp,"M-1") == 0){
-        strcpy(c,"110010");
-        a[0] = '1';
+        strcpy(c,"1110010");
     }else if(strcmp(comp,"D+M") == 0){
-        strcpy(c,"000010");
-        a[0] = '1';
+        strcpy(c,"1000010");
     }else if(strcmp(comp,"D-M") == 0){
-        strcpy(c,"010011");
-        a[0] = '1';
+        strcpy(c,"1010011");
     }else if(strcmp(comp,"M-D") == 0){
-        strcpy(c,"000111");
-        a[0] = '1';
+        strcpy(c,"1000111");
     }else if(strcmp(comp,"D&M") == 0){
-        strcpy(c,"000000");
-        a[0] = '1';
+        strcpy(c,"1000000");
     }else if(strcmp(comp,"D|M") == 0){
-        strcpy(c,"010101");
-        a[0] = '1';
+        strcpy(c,"1010101");
     }
     string ac;
-    strcpy(ac.str,a);
-    strcat(ac.str, c);
-    printf("comp     = %s\n",comp);
-    printf("comp_bin = %s\n",ac.str);
+    strcpy(ac.str,"\0\0\0\0\0\0\0\0\0\0\0\0");
+    printf("%s => %s[END]\n",comp,c);
+    strcpy(ac.str, c);
     return ac;
 }
 
@@ -318,16 +315,15 @@ string dest_bin(char *dest){
     d[1] = D;
     d[2] = M;
     d[3] = '\0';
-
+    
     string dstru;
-    printf("dest     = %s\n",dest);
-    printf("dest_bin = %s\n",d);
+    strcpy(dstru.str,"\0\0\0\0\0\0\0\0\0");
     strcpy(dstru.str,d);
     return dstru;
     }
 
 string jump_bin(char *jump){
-    char j[4] = "000\0";
+    char j[4] = "000";
     
     if(strcmp(jump,"JGT") == 0){
         strcpy(j,"001");
@@ -345,8 +341,7 @@ string jump_bin(char *jump){
         strcpy(j,"111");
     }
     string jjjj;
-    printf("jump     = %s\n",jump);
-    printf("jump_bin = %s\n",j);
+    strcpy(jjjj.str,"\0\0\0\0\0\0\0\0\0");
     strcpy(jjjj.str,j);
     return jjjj;
 }
@@ -354,19 +349,20 @@ string jump_bin(char *jump){
 string SymbolTable(char *command){
     int address = 0;
     string address_str;
-    generate_table();
+    strcpy(address_str.str,"\0\0\0\0\0\0\0\0\0");
     if(command[0] == '('){
         strcpy(address_str.str,"\0");
         return address_str;
     }else if(command[0] == '@'){
+        command[0] = '(';
+        command[strlen(command) - 1] = ')';
         if(contain(command) == TRUE){
             address = getAddress(command);
             strcpy(address_str.str,address_binarizer(address).str);
             return address_str;
         }else if(contain(command) == FAULSE){
-            addEntry(command);
-            strcpy(address_str.str,"\0");
-            return address_str;
+            perror("[ERROR]unknown\n");
+            exit(EXIT_FAILURE);
         }
     }
 }
@@ -378,17 +374,6 @@ void generate_table(){
         perror("Can not make/read/write symboltable\n");
         exit(EXIT_FAILURE);
         }
-        
-    fputs("SP 0\n",symboltable);
-    fputs("LCL 1\n",symboltable);
-    fputs("ARG 2\n",symboltable);
-    fputs("THIS 3\n",symboltable);
-    fputs("THAT 4\n",symboltable);
-    fputs("SCREEN 16384\n",symboltable);
-    fputs("KBD 24576\n",symboltable);
-    for(int i=0;i<16;i++){
-        fprintf(symboltable,"R%d %d\n",i,i);
-    }
     fclose(symboltable);
 }
 
@@ -456,7 +441,7 @@ int contain(char *command){
         perror("Can not open symboltable\n");
         exit(EXIT_FAILURE);
         }
-    command[strlen(command)-1] = '\0';
+    command[strlen(command)] = '\0';
     while(fgets(buffer,1024,symboltable) != NULL){
         if(strcmp(command,strtok(buffer," ")) == 0){
             return TRUE;
@@ -483,4 +468,40 @@ string address_binarizer(int address){
         }
     address_bin.str[strlen(address_bin.str)] = '\n';
     return address_bin;
+    }
+
+void generate_symboltableV2(){
+    int counter = 0;
+    char buffer[1024];
+    FILE *symboltable,*asm_file;
+    symboltable = fopen("symboltable","w+");
+    asm_file = fopen(filename,"r");
+    
+    if(symboltable == NULL || asm_file == NULL){
+        perror("[ERROR]\n");
+        exit(EXIT_FAILURE);
+        }
+        
+    fputs("SP 0\n",symboltable);
+    fputs("LCL 1\n",symboltable);
+    fputs("ARG 2\n",symboltable);
+    fputs("THIS 3\n",symboltable);
+    fputs("THAT 4\n",symboltable);
+    fputs("SCREEN 16384\n",symboltable);
+    fputs("KBD 24576\n",symboltable);
+    for(int i=0;i<16;i++){
+        fprintf(symboltable,"R%d %d\n",i,i);
+    }
+
+    while(fgets(buffer,1024,asm_file) != NULL){
+        buffer[strlen(buffer)-1]='\0';
+        if(buffer[0] == '('){
+            fprintf(symboltable,"%s %d\n",buffer,counter);
+        }else{
+            counter++;
+            }
+        }
+
+    fclose(symboltable);
+    fclose(asm_file);
     }
