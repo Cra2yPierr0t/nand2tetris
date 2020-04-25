@@ -25,6 +25,8 @@ typedef enum {
 #include<stdio.h>
 #include<stdlib.h>
 #include<stdbool.h>
+#include<string.h>
+#include<ctype.h>
 
 typedef enum {
     TT_KEYWORD,
@@ -70,30 +72,96 @@ int main(int argc, char *argv[]){
     }
     */
     while(fgets(line_buffer, sizeof(line_buffer), fp_jack) != NULL){
-        
+        while(*line_buffer){
+            while(isspace(line_buffer))
+                line_buffer++;
 
-    }
-
-    while(hasMoreTokens()){
-        advance();
-        switch(tokenType()){
-            case TT_KEYWORD:
-                cur = new_token(TT_KEYWORD, cur, keyWord(), NULL, NULL, NULL);
-                break;
-            case TT_SYMBOL:
-                cur = new_token(TT_SYMBOL, cur, NULL, symbol(), NULL, NULL);
-                break;
-            case TT_IDENTIFIER:
-                cur = new_token(TT_IDENTIFIER, cur, NULL, NULL, identifier(), NULL);
-                break;
-            case TT_INT_CONST:
-                cur = new_token(TT_INT_CONST, cur, NULL, NULL, NULL, intVal());
-                break;
-            case TT_STRING_CONST:
-                cur = new_token(TT_STRING_CONST, cur, NULL, NULL, NULL, NULL, stringVal());
-                break;
-            default:
-                break;
+            if(strncmp(line_buffer, "//", 2) == 0)
+                continue;
+            if(strncmp(line_buffer, "constructor", 11) == 0){
+                line_buffer += 11;
+                cur = new_token();
+            }
+            if(strncmp(line_buffer, "function", 8) == 0){
+                line_buffer += 8;
+                cur = new_token();
+            }
+            if(strncmp(line_buffer, "boolean", 7) == 0){
+                line_buffer += 7;
+                cur = new_token();
+            }
+            if(strncmp(line_buffer, "static", 6) == 0){
+                line_buffer += 6;
+                cur = new_token();
+            }
+            if(strncmp(line_buffer, "return", 6) == 0){
+                line_buffer += 6;
+                cur = new_token();
+            }
+            if(strncmp(line_buffer, "method", 6) == 0){
+                line_buffer += 6;
+                cur = new_token();
+            }
+            if(strncmp(line_buffer, "field", 5) == 0){
+                line_buffer += 5;
+                cur = new_token();
+            }
+            if(strncmp(line_buffer, "class", 5) == 0){
+                line_buffer += 5;
+                cur = new_token();
+            }
+            if(strncmp(line_buffer, "false", 5) == 0){
+                line_buffer += 5;
+                cur = new_token();
+            }
+            if(strncmp(line_buffer, "while", 5) == 0){
+                line_buffer += 5;
+                cur = new_token();
+            }
+            if(strncmp(line_buffer, "char", 4) == 0){
+                line_buffer += 4;
+                cur = new_token();
+            }
+            if(strncmp(line_buffer, "void", 4) == 0){
+                line_buffer += 4;
+                cur = new_token();
+            }
+            if(strncmp(line_buffer, "true", 4) == 0){
+                line_buffer += 4;
+                cur = new_token();
+            }
+            if(strncmp(line_buffer, "null", 4) == 0){
+                line_buffer += 4;
+                cur = new_token();
+            }
+            if(strncmp(line_buffer, "this", 4) == 0){
+                line_buffer += 4;
+                cur = new_token();
+            }
+            if(strncmp(line_buffer, "else", 4) == 0){
+                line_buffer += 4;
+                cur = new_token();
+            }
+            if(strncmp(line_buffer, "var", 3) == 0){
+                line_buffer += 3;
+                cur = new_token();
+            }
+            if(strncmp(line_buffer, "int", 3) == 0){
+                line_buffer += 3;
+                cur = new_token();
+            }
+            if(strncmp(line_buffer, "let", 3) == 0){
+                line_buffer += 3;
+                cur = new_token();
+            }
+            if(strncmp(line_buffer, "do", 2) == 0){
+                line_buffer += 2;
+                cur = new_token();
+            }
+            if(strncmp(line_buffer, "if", 2) == 0){
+                line_buffer += 2;
+                cur = new_token();
+            }
         }
     }
 
