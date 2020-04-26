@@ -42,6 +42,7 @@ struct Token {
     Token *next;
     char *str;
     int len;
+    int val;
 };
 
 Token *token;
@@ -55,8 +56,17 @@ char*       identifier(void);
 int         intVal(void);
 char*       stringVal(void);
 
+Token *new_token(TikenType type, Token *cur, char *str, int len){
+    Token *tok = calloc(1, sizeof(Token));
+    tok->type = type;
+    tok->str = str;
+    tok->len = len;
+    cur->next = tok;
+    return tok;
+}
+
 int main(int argc, char *argv[]){
-    char line_buffer[256];
+    char *line_buffer;
     char xml_filename[256];
     FILE* fp_jack, fp_xml;
     if((fp_jack = fopen(argv[1], "r")) == NULL){
@@ -71,96 +81,113 @@ int main(int argc, char *argv[]){
         exit(1);
     }
     */
+
+    Token head;
+    head.next = NULL;
+    Token *cur = &head;
+
     while(fgets(line_buffer, sizeof(line_buffer), fp_jack) != NULL){
         while(*line_buffer){
-            while(isspace(line_buffer))
+            if(isspace(*line_buffer))
                 line_buffer++;
 
             if(strncmp(line_buffer, "//", 2) == 0)
                 continue;
             if(strncmp(line_buffer, "constructor", 11) == 0){
                 line_buffer += 11;
-                cur = new_token();
+                cur = new_token(TT_KEYWORD, cur, "constructor", 11);
             }
             if(strncmp(line_buffer, "function", 8) == 0){
                 line_buffer += 8;
-                cur = new_token();
+                cur = new_token(TT_KEYWORD, cur, "function", 8);
             }
             if(strncmp(line_buffer, "boolean", 7) == 0){
                 line_buffer += 7;
-                cur = new_token();
+                cur = new_token(TT_KEYWORD, cur, "boolean", 7);
             }
             if(strncmp(line_buffer, "static", 6) == 0){
                 line_buffer += 6;
-                cur = new_token();
+                cur = new_token(TT_KEYWORD, cur, "static", 6);
             }
             if(strncmp(line_buffer, "return", 6) == 0){
                 line_buffer += 6;
-                cur = new_token();
+                cur = new_token(TT_KEYWORD, cur, "return", 6);
             }
             if(strncmp(line_buffer, "method", 6) == 0){
                 line_buffer += 6;
-                cur = new_token();
+                cur = new_token(TT_KEYWORD, cur, "method", 6);
             }
             if(strncmp(line_buffer, "field", 5) == 0){
                 line_buffer += 5;
-                cur = new_token();
+                cur = new_token(TT_KEYWORD, cur, "field", 5);
             }
             if(strncmp(line_buffer, "class", 5) == 0){
                 line_buffer += 5;
-                cur = new_token();
+                cur = new_token(TT_KEYWORD, cur, "class", 5);
             }
             if(strncmp(line_buffer, "false", 5) == 0){
                 line_buffer += 5;
-                cur = new_token();
+                cur = new_token(TT_KEYWORD, cur, "false", 5);
             }
             if(strncmp(line_buffer, "while", 5) == 0){
                 line_buffer += 5;
-                cur = new_token();
+                cur = new_token(TT_KEYWORD, cur, "while", 5);
             }
             if(strncmp(line_buffer, "char", 4) == 0){
                 line_buffer += 4;
-                cur = new_token();
+                cur = new_token(TT_KEYWORD, cur, "char", 4);
             }
             if(strncmp(line_buffer, "void", 4) == 0){
                 line_buffer += 4;
-                cur = new_token();
+                cur = new_token(TT_KEYWORD, cur, "void", 4);
             }
             if(strncmp(line_buffer, "true", 4) == 0){
                 line_buffer += 4;
-                cur = new_token();
+                cur = new_token(TT_KEYWORD, cur, "true", 4);
             }
             if(strncmp(line_buffer, "null", 4) == 0){
                 line_buffer += 4;
-                cur = new_token();
+                cur = new_token(TT_KEYWORD, cur, "null", 4);
             }
             if(strncmp(line_buffer, "this", 4) == 0){
                 line_buffer += 4;
-                cur = new_token();
+                cur = new_token(TT_KEYWORD, cur, "this", 4);
             }
             if(strncmp(line_buffer, "else", 4) == 0){
                 line_buffer += 4;
-                cur = new_token();
+                cur = new_token(TT_KEYWORD, cur, "else", 4);
             }
             if(strncmp(line_buffer, "var", 3) == 0){
                 line_buffer += 3;
-                cur = new_token();
+                cur = new_token(TT_KEYWORD, cur, "var", 3);
             }
             if(strncmp(line_buffer, "int", 3) == 0){
                 line_buffer += 3;
-                cur = new_token();
+                cur = new_token(TT_KEYWORD, cur, "int", 3);
             }
             if(strncmp(line_buffer, "let", 3) == 0){
                 line_buffer += 3;
-                cur = new_token();
+                cur = new_token(TT_KEYWORD, cur, "let", 3);
             }
             if(strncmp(line_buffer, "do", 2) == 0){
                 line_buffer += 2;
-                cur = new_token();
+                cur = new_token(TT_KEYWORD, cur, "do", 2);
             }
             if(strncmp(line_buffer, "if", 2) == 0){
                 line_buffer += 2;
-                cur = new_token();
+                cur = new_token(TT_KEYWORD, cur, "if", 2);
+            }
+            if(strchr("{}()[].,;+-*/&|<>=~", *line_buffer)){
+                cur = new_token(TT_SYMBOL, cur, p++, 1);
+            }
+            if(isdigit(*line_buffer)){
+                cur = new_token(TT_INT_CONST, cur, p, 0);
+                char *q = p;
+                cur->val = strtol(p, &p, 10);
+                cur->len = p - q;
+            }
+            if(strncmp(line_buffer, "\"", 1) == 1){
+                
             }
         }
     }
