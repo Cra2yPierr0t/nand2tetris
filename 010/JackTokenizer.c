@@ -56,7 +56,7 @@ char*       identifier(void);
 int         intVal(void);
 char*       stringVal(void);
 
-Token *new_token(TikenType type, Token *cur, char *str, int len){
+Token *new_token(TokenType type, Token *cur, char *str, int len){
     Token *tok = calloc(1, sizeof(Token));
     tok->type = type;
     tok->str = str;
@@ -178,16 +178,22 @@ int main(int argc, char *argv[]){
                 cur = new_token(TT_KEYWORD, cur, "if", 2);
             }
             if(strchr("{}()[].,;+-*/&|<>=~", *line_buffer)){
-                cur = new_token(TT_SYMBOL, cur, p++, 1);
+                cur = new_token(TT_SYMBOL, cur, line_buffer, 1);
+                strncpy(cur->str, line_buffer++, 1);
             }
             if(isdigit(*line_buffer)){
-                cur = new_token(TT_INT_CONST, cur, p, 0);
-                char *q = p;
-                cur->val = strtol(p, &p, 10);
+                cur = new_token(TT_INT_CONST, cur, line_buffer, 0);
+                char *q = line_buffer;
+                cur->val = strtol(, &p, 10);
                 cur->len = p - q;
             }
-            if(strncmp(line_buffer, "\"", 1) == 1){
-                
+            if(strncmp(line_buffer, "\"", 1) == 0){
+                char *q = line_buffer;
+                while(strncmp(++q, "\"", 1) != 0)
+                    ;
+                cur = new_token(TT_STRING_CONST, cur, line_buffer, 0);
+                strncpy(cur->str, line_buffer, q - line_buffer);
+                cur->len = q - line_buffer;
             }
         }
     }
