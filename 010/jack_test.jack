@@ -1,2 +1,3 @@
-if (x < 153)
-    {let city="Paris";}
+if (x < 153){
+    let intai="uoo";
+}

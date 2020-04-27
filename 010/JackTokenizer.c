@@ -47,6 +47,16 @@ struct Token {
 
 Token *token;
 
+bool see_reserve_beyond(char *);
+
+bool see_reserve_beyond(char *beyond){
+    if(strchr(" {}()[].,;=^*/&|<>=~", *beyond) != NULL){
+        return true;
+    } else {
+        return false;
+    }
+}
+
 bool        hasMoreTokens(void);
 void        advance(void);
 TokenType   tokenType(void);
@@ -122,67 +132,67 @@ int main(int argc, char *argv[]){
                 continue;
             if(isspace(*line_buffer)){
                 line_buffer++;
-            } else if(strncmp(line_buffer, "constructor", 11) == 0){
+            } else if((strncmp(line_buffer, "constructor", 11) == 0) && see_reserve_beyond(line_buffer + 11)){
                 line_buffer += 11;
                 cur = new_token(TT_KEYWORD, cur, "constructor", 11);
-            } else if(strncmp(line_buffer, "function", 8) == 0){
+            } else if((strncmp(line_buffer, "function", 8) == 0) && see_reserve_beyond(line_buffer + 11)){
                 line_buffer += 8;
                 cur = new_token(TT_KEYWORD, cur, "function", 8);
-            } else if(strncmp(line_buffer, "boolean", 7) == 0){
+            } else if((strncmp(line_buffer, "boolean", 7) == 0) && see_reserve_beyond(line_buffer + 8)){
                 line_buffer += 7;
                 cur = new_token(TT_KEYWORD, cur, "boolean", 7);
-            } else if(strncmp(line_buffer, "static", 6) == 0){
+            } else if((strncmp(line_buffer, "static", 6) == 0) && see_reserve_beyond(line_buffer + 7)){
                 line_buffer += 6;
                 cur = new_token(TT_KEYWORD, cur, "static", 6);
-            } else if(strncmp(line_buffer, "return", 6) == 0){
+            } else if((strncmp(line_buffer, "return", 6) == 0) && see_reserve_beyond(line_buffer + 6)){
                 line_buffer += 6;
                 cur = new_token(TT_KEYWORD, cur, "return", 6);
-            } else if(strncmp(line_buffer, "method", 6) == 0){
+            } else if((strncmp(line_buffer, "method", 6) == 0) && see_reserve_beyond(line_buffer + 6)){
                 line_buffer += 6;
                 cur = new_token(TT_KEYWORD, cur, "method", 6);
-            } else if(strncmp(line_buffer, "field", 5) == 0){
+            } else if((strncmp(line_buffer, "field", 5) == 0) && see_reserve_beyond(line_buffer + 6)){
                 line_buffer += 5;
                 cur = new_token(TT_KEYWORD, cur, "field", 5);
-            } else if(strncmp(line_buffer, "class", 5) == 0){
+            } else if((strncmp(line_buffer, "class", 5) == 0) && see_reserve_beyond(line_buffer + 5)){
                 line_buffer += 5;
                 cur = new_token(TT_KEYWORD, cur, "class", 5);
-            } else if(strncmp(line_buffer, "false", 5) == 0){
+            } else if((strncmp(line_buffer, "false", 5) == 0) && see_reserve_beyond(line_buffer + 5)){
                 line_buffer += 5;
                 cur = new_token(TT_KEYWORD, cur, "false", 5);
-            } else if(strncmp(line_buffer, "while", 5) == 0){
+            } else if((strncmp(line_buffer, "while", 5) == 0) && see_reserve_beyond(line_buffer + 5)){
                 line_buffer += 5;
                 cur = new_token(TT_KEYWORD, cur, "while", 5);
-            } else if(strncmp(line_buffer, "char", 4) == 0){
+            } else if((strncmp(line_buffer, "char", 4) == 0) && see_reserve_beyond(line_buffer + 5)){
                 line_buffer += 4;
                 cur = new_token(TT_KEYWORD, cur, "char", 4);
-            } else if(strncmp(line_buffer, "void", 4) == 0){
+            } else if((strncmp(line_buffer, "void", 4) == 0) && see_reserve_beyond(line_buffer + 4)){
                 line_buffer += 4;
                 cur = new_token(TT_KEYWORD, cur, "void", 4);
-            } else if(strncmp(line_buffer, "true", 4) == 0){
+            } else if((strncmp(line_buffer, "true", 4) == 0) && see_reserve_beyond(line_buffer + 4)){
                 line_buffer += 4;
                 cur = new_token(TT_KEYWORD, cur, "true", 4);
-            } else if(strncmp(line_buffer, "null", 4) == 0){
+            } else if((strncmp(line_buffer, "null", 4) == 0) && see_reserve_beyond(line_buffer + 4)){
                 line_buffer += 4;
                 cur = new_token(TT_KEYWORD, cur, "null", 4);
-            } else if(strncmp(line_buffer, "this", 4) == 0){
+            } else if((strncmp(line_buffer, "this", 4) == 0) && see_reserve_beyond(line_buffer + 4)){
                 line_buffer += 4;
                 cur = new_token(TT_KEYWORD, cur, "this", 4);
-            } else if(strncmp(line_buffer, "else", 4) == 0){
+            } else if((strncmp(line_buffer, "else", 4) == 0) && see_reserve_beyond(line_buffer + 4)){
                 line_buffer += 4;
                 cur = new_token(TT_KEYWORD, cur, "else", 4);
-            } else if(strncmp(line_buffer, "var", 3) == 0){
+            } else if((strncmp(line_buffer, "var", 3) == 0) && see_reserve_beyond(line_buffer + 3)){
                 line_buffer += 3;
                 cur = new_token(TT_KEYWORD, cur, "var", 3);
-            } else if(strncmp(line_buffer, "int", 3) == 0){
+            } else if((strncmp(line_buffer, "int", 3) == 0) && see_reserve_beyond(line_buffer + 3)){
                 line_buffer += 3;
                 cur = new_token(TT_KEYWORD, cur, "int", 3);
-            } else if(strncmp(line_buffer, "let", 3) == 0){
+            } else if((strncmp(line_buffer, "let", 3) == 0) && see_reserve_beyond(line_buffer + 3)){
                 cur = new_token(TT_KEYWORD, cur, line_buffer, 3);
                 line_buffer += 3;
-            } else if(strncmp(line_buffer, "do", 2) == 0){
+            } else if((strncmp(line_buffer, "do", 2) == 0) && see_reserve_beyond(line_buffer + 2)){
                 line_buffer += 2;
                 cur = new_token(TT_KEYWORD, cur, "do", 2);
-            } else if(strncmp(line_buffer, "if", 2) == 0){
+            } else if((strncmp(line_buffer, "if", 2) == 0) && see_reserve_beyond(line_buffer + 2)){
                 cur = new_token(TT_KEYWORD, cur, line_buffer, 2);
                 line_buffer += 2;
             } else if(addr_buffer = strchr("{}()[].,;+-*/&|<>=~", *line_buffer)){
