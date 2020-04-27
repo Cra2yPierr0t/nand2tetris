@@ -89,15 +89,15 @@ int main(int argc, char *argv[]){
     Token *cur = &head;
 
     char *addr_buffer;
-
-    while(fgets(line_buffer, sizeof(line_buffer), fp_jack) != NULL){
+    
+    while(fgets(line_buffer, 1024, fp_jack) != NULL){
         while(*line_buffer){
-            if(isspace(*line_buffer))
-                line_buffer++;
 
             if(strncmp(line_buffer, "//", 2) == 0)
                 continue;
-            if(strncmp(line_buffer, "constructor", 11) == 0){
+            if(isspace(*line_buffer)){
+                line_buffer++;
+            } else if(strncmp(line_buffer, "constructor", 11) == 0){
                 line_buffer += 11;
                 cur = new_token(TT_KEYWORD, cur, "constructor", 11);
             } else if(strncmp(line_buffer, "function", 8) == 0){
@@ -152,16 +152,17 @@ int main(int argc, char *argv[]){
                 line_buffer += 3;
                 cur = new_token(TT_KEYWORD, cur, "int", 3);
             } else if(strncmp(line_buffer, "let", 3) == 0){
+                cur = new_token(TT_KEYWORD, cur, line_buffer, 3);
                 line_buffer += 3;
-                cur = new_token(TT_KEYWORD, cur, "let", 3);
             } else if(strncmp(line_buffer, "do", 2) == 0){
                 line_buffer += 2;
                 cur = new_token(TT_KEYWORD, cur, "do", 2);
             } else if(strncmp(line_buffer, "if", 2) == 0){
+                cur = new_token(TT_KEYWORD, cur, line_buffer, 2);
                 line_buffer += 2;
-                cur = new_token(TT_KEYWORD, cur, "if", 2);
-            } else if(addr_buffer = strchr("{}()[].,;+-*/&|<>=~", *line_buffer++)){
+            } else if(addr_buffer = strchr("{}()[].,;+-*/&|<>=~", *line_buffer)){
                 cur = new_token(TT_SYMBOL, cur, addr_buffer, 1);
+                line_buffer++;
             } else if(isdigit(*line_buffer)){
                 cur = new_token(TT_INT_CONST, cur, line_buffer, 0);
                 cur->val = strtol(line_buffer, &line_buffer, 10);
@@ -173,11 +174,13 @@ int main(int argc, char *argv[]){
                 line_buffer = ++q;
             } else {
                 char *p = line_buffer;
-                while(strchr(" ()]};+-*/&|<>=,.", *p) == NULL)
+                while(strchr(" ()]};+-*/&|<>=,.", *p) == NULL){
                     ++p;
-                cur = new_token(TT_IDENTIFIER, cur, p - line_buffer);
+                }
+                cur = new_token(TT_IDENTIFIER, cur, line_buffer, p - line_buffer);
                 line_buffer = p;
             }
+            printf("--\"%s\"--\n", cur->str);
         }
     }
 
