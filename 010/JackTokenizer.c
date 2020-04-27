@@ -68,7 +68,7 @@ Token *new_token(TokenType type, Token *cur, char *str, int len){
 }
 
 int main(int argc, char *argv[]){
-    char *line_buffer;
+    char *line_buffer = (char *)malloc(sizeof(char) * 1024);
     char xml_filename[256];
     FILE* fp_jack, fp_xml;
     if((fp_jack = fopen(argv[1], "r")) == NULL){
@@ -185,15 +185,14 @@ int main(int argc, char *argv[]){
             }
             if(isdigit(*line_buffer)){
                 cur = new_token(TT_INT_CONST, cur, line_buffer, 0);
-                char *q = line_buffer;
-                cur->val = strtol(, &p, 10);
-                cur->len = p - q;
+                cur->val = strtol(line_buffer, &line_buffer, 10);
             }
             if(strncmp(line_buffer, "\"", 1) == 0){
                 char *q = line_buffer++;
                 while(strncmp(++q, "\"", 1) != 0)
                     ;
                 cur = new_token(TT_STRING_CONST, cur, line_buffer, q - line_buffer);
+                line_buffer = ++q;
             }
         }
     }
