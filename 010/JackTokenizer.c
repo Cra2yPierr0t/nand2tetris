@@ -50,7 +50,7 @@ Token *token;
 bool        hasMoreTokens(void);
 void        advance(void);
 TokenType   tokenType(void);
-KeyWord     keyWord(void);
+char*       keyWord(void);
 char        symbol(void);
 char*       identifier(void);
 int         intVal(void);
@@ -65,6 +65,31 @@ Token *new_token(TokenType type, Token *cur, char *str, int len){
     tok->len = len;
     cur->next = tok;
     return tok;
+}
+
+bool hasMoreTokens(){
+    return token->next != NULL;
+}
+void advance(){
+    token = token->next;
+}
+TokenType tokenType(){
+    return token->type;
+}
+char *keyWord(){
+    return token->str;
+}
+char symbol(){
+    return (token->str)[0];
+}
+char *identifier(){
+    return token->str;
+}
+int intVal(){
+    return token->val;
+}
+char *stringVal(){
+    return token->str;
 }
 
 int main(int argc, char *argv[]){
@@ -180,9 +205,33 @@ int main(int argc, char *argv[]){
                 cur = new_token(TT_IDENTIFIER, cur, line_buffer, p - line_buffer);
                 line_buffer = p;
             }
-            printf("--\"%s\"--\n", cur->str);
         }
     }
+    cur->next = NULL;
+    token = head.next;
+
+    printf("<tokens>\n");
+    do{
+        switch(tokenType()){
+            case TT_KEYWORD:
+                printf("\t<keyword> %s </keyword>\n", keyWord());
+                break;
+            case TT_SYMBOL:
+                printf("\t<symbol> %c </symbol>\n", symbol());
+                break;
+            case TT_IDENTIFIER:
+                printf("\t<identifier> %s </identifier>\n", identifier());
+                break;
+            case TT_INT_CONST:
+                printf("\t<integerConstant> %d\n\t</integerConstant>\n", intVal());
+                break;
+            case TT_STRING_CONST:
+                printf("\t<stringConstant> %s\n\t</stringConstant>\n", stringVal());
+                break;
+        }
+        advance();
+    }while(hasMoreTokens());
+    printf("</tokens>\n");
 
     fclose(fp_jack);
     return 0;
