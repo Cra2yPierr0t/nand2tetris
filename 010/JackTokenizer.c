@@ -1,53 +1,11 @@
-typedef enum {
-    KW_CLASS,
-    KW_METHOD,
-    KW_FUNCTION,
-    KW_CONSTRUCTOR,
-    KW_INT,
-    KW_BOOLEAN,
-    KW_CHAR,
-    KW_VOID,
-    KW_VAR,
-    KW_STATIC,
-    KW_FIELD,
-    KW_KET,
-    KW_DO,
-    KW_IF,
-    KW_ELSE,
-    KW_WHILE,
-    KW_RETURN,
-    KW_TRUE,
-    KW_FALSE,
-    KW_NULL,
-    KW_THIS
-} KeyWord;
-
 #include<stdio.h>
 #include<stdlib.h>
 #include<stdbool.h>
 #include<string.h>
 #include<ctype.h>
-
-typedef enum {
-    TT_KEYWORD,
-    TT_SYMBOL,
-    TT_IDENTIFIER,
-    TT_INT_CONST,
-    TT_STRING_CONST
-} TokenType;
-
-typedef struct Token Token;
-struct Token {
-    TokenType type;
-    Token *next;
-    char *str;
-    int len;
-    int val;
-};
+#include"JackTokenizer.h"
 
 Token *token;
-
-bool see_reserve_beyond(char *);
 
 bool see_reserve_beyond(char *beyond){
     if(strchr(" {}()[].,;=^*/&|<>=~", *beyond) != NULL){
@@ -56,15 +14,6 @@ bool see_reserve_beyond(char *beyond){
         return false;
     }
 }
-
-bool        hasMoreTokens(void);
-void        advance(void);
-TokenType   tokenType(void);
-char*       keyWord(void);
-char        symbol(void);
-char*       identifier(void);
-int         intVal(void);
-char*       stringVal(void);
 
 Token *new_token(TokenType type, Token *cur, char *str, int len){
     Token *tok = calloc(1, sizeof(Token));
@@ -77,36 +26,12 @@ Token *new_token(TokenType type, Token *cur, char *str, int len){
     return tok;
 }
 
-bool hasMoreTokens(){
-    return token->next != NULL;
-}
-void advance(){
-    token = token->next;
-}
-TokenType tokenType(){
-    return token->type;
-}
-char *keyWord(){
-    return token->str;
-}
-char symbol(){
-    return (token->str)[0];
-}
-char *identifier(){
-    return token->str;
-}
-int intVal(){
-    return token->val;
-}
-char *stringVal(){
-    return token->str;
-}
+Token *tokenize(char *filename){
 
-int main(int argc, char *argv[]){
     char *line_buffer = (char *)malloc(sizeof(char) * 1024);
     char xml_filename[256];
     FILE* fp_jack, fp_xml;
-    if((fp_jack = fopen(argv[1], "r")) == NULL){
+    if((fp_jack = fopen(filename, "r")) == NULL){
         fprintf(stderr, "ファイルを開けません\n");
         exit(1);
     }
@@ -217,8 +142,39 @@ int main(int argc, char *argv[]){
             }
         }
     }
+
+    fclose(fp_jack);
     cur->next = NULL;
-    token = head.next;
+    return head.next;
+}
+
+bool hasMoreTokens(){
+    return token->next != NULL;
+}
+void advance(){
+    token = token->next;
+}
+TokenType tokenType(){
+    return token->type;
+}
+char *keyWord(){
+    return token->str;
+}
+char symbol(){
+    return (token->str)[0];
+}
+char *identifier(){
+    return token->str;
+}
+int intVal(){
+    return token->val;
+}
+char *stringVal(){
+    return token->str;
+}
+
+int main(int argc, char *argv[]){
+    token = tokenize(argv[1]);
 
     printf("<tokens>\n");
     do{
@@ -243,6 +199,5 @@ int main(int argc, char *argv[]){
     }while(hasMoreTokens());
     printf("</tokens>\n");
 
-    fclose(fp_jack);
     return 0;
 }
