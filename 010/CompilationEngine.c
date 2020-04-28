@@ -270,3 +270,89 @@ void returnStatement(){
     printf("</returnStatement>\n");
     return;
 }
+
+void expression(){
+    printf("<expression>\n");
+    term();
+    while((symbol() == '+') || 
+          (symbol() == '-') ||
+          (symbol() == '*') ||
+          (symbol() == '/') ||
+          (symbol() == '&') ||
+          (symbol() == '|') ||
+          (symbol() == '<') ||
+          (symbol() == '>') || 
+          (symbol() == '=')){
+                consume_symbol(symbol());
+                term();
+          }
+    printf("/<expression>\n");
+    return;
+}
+
+void term(){
+    printf("<term>\n");
+    if(tokenType() == TT_INT_CONST){
+        printf("<integerConstant> %d </integerConstant>\n", intVal());
+        advance();
+    } else if(tokenType() == TT_STRING_CONST){
+        printf("<stringConstant> %s </stringConstant>\n", stringVal());
+        advance();
+    } else if(tokenType() == TT_KEYWORD) {
+        printf("<keyword> %s </keyword>\n", stringVal());
+        advance();
+    } else if(tokenType() == TT_SYMBOL) {
+        if(symbol() == '(') {
+            consume_symbol('(');
+            expression();
+            consume_symbol(')');
+        } else if((symbol() == '-') || (symbol() == '~')) {
+            consume_symbol(symbol());
+            term();
+        } else {
+            exit(1);
+        }
+    } else {
+        printf("<identifier> %s </identifier>\n", identifier());
+        advance();
+        if(symbol() == '['){
+            consume_symbol('[');
+            expression();
+            consume_symbol(']');
+        } else if((symbol() == '(') || symbol() == '.'){
+            subroutineCall();
+        } else {
+            printf("<identifier> %s </identifier>\n", identifier());
+            advance();
+        }
+    }
+    printf("</term>\n");
+    return;
+}
+
+void subroutineCall(){
+    if(symbol() == '('){
+        consume_symbol('(');
+        expressionList();
+        consume_symbol(')');
+    } else {
+        consume_symbol('.');
+        printf("<identifier> %s </identifer>\n", identifier());
+        advance();
+        consume_symbol('(');
+        expressionList();
+        consume_symbol(')');
+    }
+    return;
+}
+
+void expressionList(){
+    if(symbol() != ')'){
+        expression();
+        while(symbol() == ','){
+            consume_symbol(',');
+            expression();
+        }
+    }
+    return;
+}
