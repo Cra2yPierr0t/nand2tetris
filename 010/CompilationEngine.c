@@ -34,6 +34,18 @@ struct Node {
     int val;
     char *str;
 };
+
+void consume_symbol(char sym){
+    if(symbol() == sym){
+        printf("<symbol> %c </symbol>\n", symbol());
+        advance();
+        return;
+    } else {
+        fprintf(stderr, "%cが不足しています\n", sym);
+        exit(1);
+    }
+}
+
 void class(){
     printf("<class>\n\t");
     if(keyWord() == KW_CLASS){
@@ -46,12 +58,7 @@ void class(){
         printf("<identifier> %s </identifier>\n", identifier());
         advance();
     }   
-    if(symbol() == '{'){
-        printf("<symbol> %c </symbol>\n", symbol());
-        advance();
-    } else {
-        exit(1);
-    }
+    consume_symbol('{');
 
     while(1){
         if((keyWord() == KW_STATIC) || (keyWord() == KW_FIELD)){
@@ -67,13 +74,8 @@ void class(){
             break;
         }
     }
-
-    if(symbol() == '}'){
-        printf("<symbol> %c </symbol>\n", symbol());
-        advance();
-    } else {
-        exit(1);
-    }
+    consume_symbol('}');
+    return;
 }
     
 void classVarDec(){
@@ -85,12 +87,11 @@ void classVarDec(){
     printf("<identifier> %s </identifier>\n", identifier());
     advance();
     while(symbol() != ';'){
-        printf("<symbol> %c </symbol>\n", symbol());
-        advance();
+        consume_symbol(',');
         printf("<identifier> %s </identifier>\n", identifier());
         advance();
     }
-    printf("<symbol> %c </symbol>\n", symbol());
+    consume_symbol(';');
     printf("</classVarDec>\n\t");
     advance();
     return;
@@ -104,19 +105,9 @@ void subroutineDec(){
     advance();
     printf("<identifier> %s </identifier>\n", identifier());
     advance();
-    if(symbol() == '('){
-        printf("<symbol> %c </symbol>\n", symbol());
-        advance();
-        parameterList();
-    } else {
-        exit(1);
-    }
-    if(symbol() == ')'){
-        printf("<symbol> %c </symbol>\n", symbol());
-        advance();
-    } else {
-        exit(1);
-    }
+    consume_symbol('(');
+    parameterList();
+    consume_symbol(')');
     subroutineBody();
     printf("</subroutineDec>\n");
     return;
@@ -150,22 +141,12 @@ void parameterList(){
 
 void subroutineBody(){
     printf("<subroutineBody>\n");
-    if(symbol() == '{'){
-        printf("<symbol> %c </symbol>\n", symbol());
-        advance();
-    } else {
-        exit(1);
-    }
+    consume_symbol('{');
     while(keyWord() == KW_VAR){
         varDec();
     }
     statements();
-    if(symbol() == '}'){
-        printf("<symbol> %c </symbol>\n", symbol());
-        advance();
-    } else {
-        exit(1);
-    }
+    consume_symbol('}');
     printf("</subroutineBody>\n");
     return;
 }
@@ -178,17 +159,11 @@ void varDec(){
     printf("<identifier> %s </identifier>\n", identifier());
     advance();
     while(symbol() == ','){
-        printf("<symbol> %c </symbol>\n", symbol());
-        advance();
+        consume_symbol(',');
         printf("<identifier> %s </identifier>\n", identifier());
         advance();
     }
-    if(symbol() == ';'){
-        printf("<symbol> %c </symbol>\n", symbol());
-        advance();
-    } else {
-        exit(1);
-    }
+    consume_symbol(';');
     printf("</varDec>\n");
     return;
 }
@@ -228,29 +203,28 @@ void letStatement(){
     printf("<identifier> %s </identifier>\n", identifier());
     advance();
     if(symbol() == '['){
-        printf("<symbol> %c </symbol>\n", symbol());
-        advance();
+        consume_symbol('[');
         expression();
-        if(symbol() == ']'){
-            printf("<symbol> %c </symbol>\n", symbol());
-            advance();
-        } else {
-            exit(1);
-        }
+        consume_symbol(']');
     }
-    if(symbol() == '='){
-        printf("<symbol> %c </symbol>\n", symbol());
-        advance();
-    } else {
-        exit(1);
-    }
+    consume_symbol('=');
     expression();
-    if(symbol() == ';'){
-        printf("<symbol> %c </symbol>\n", symbol());
-        advance();
-    } else {
-        exit(1);
-    }
+    consume_symbol(';');
     printf("</letStatement>\n");
     return;
+}
+
+
+
+void ifStatement(){
+    printf("<ifStatement>\n");
+    printf("<keyword> %s </keyword>\n", stringVal());
+    advance();
+    consume_symbol('(');
+    expression();
+    consume_symbol(')');
+    consume_symbol('{');
+    statements();
+    consume_symbol('}');
+    printf("</ifStatement>\n");
 }
