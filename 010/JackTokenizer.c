@@ -46,10 +46,10 @@ Token *tokenize(char *filename){
     while(fgets(line_buffer, 1024, fp_jack) != NULL){
         while(*line_buffer){
 
-            if(strncmp(line_buffer, "//", 2) == 0)
-                continue;
             if(isspace(*line_buffer)){
                 line_buffer++;
+            } else if(strncmp(line_buffer, "//", 2) == 0){
+                break;
             } else if((strncmp(line_buffer, "constructor", 11) == 0) && see_reserve_beyond(line_buffer + 11)){
                 line_buffer += 11;
                 cur = new_token(TT_KEYWORD, cur, "constructor", 11);
