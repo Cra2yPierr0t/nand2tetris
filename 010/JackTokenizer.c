@@ -60,66 +60,87 @@ Token *tokenize(char *filename){
             } else if((strncmp(line_buffer, "constructor", 11) == 0) && see_reserve_beyond(line_buffer + 11)){
                 line_buffer += 11;
                 cur = new_token(TT_KEYWORD, cur, "constructor", 11);
+                cur->word = KW_CONSTRUCTOR;
             } else if((strncmp(line_buffer, "function", 8) == 0) && see_reserve_beyond(line_buffer + 11)){
                 line_buffer += 8;
                 cur = new_token(TT_KEYWORD, cur, "function", 8);
+                cur->word = KW_FUNCTION;
             } else if((strncmp(line_buffer, "boolean", 7) == 0) && see_reserve_beyond(line_buffer + 8)){
                 line_buffer += 7;
                 cur = new_token(TT_KEYWORD, cur, "boolean", 7);
+                cur->word = KW_BOOLEAN;
             } else if((strncmp(line_buffer, "static", 6) == 0) && see_reserve_beyond(line_buffer + 7)){
                 line_buffer += 6;
                 cur = new_token(TT_KEYWORD, cur, "static", 6);
+                cur->word = KW_STATIC;
             } else if((strncmp(line_buffer, "return", 6) == 0) && see_reserve_beyond(line_buffer + 6)){
                 line_buffer += 6;
                 cur = new_token(TT_KEYWORD, cur, "return", 6);
+                cur->word = KW_RETURN;
             } else if((strncmp(line_buffer, "method", 6) == 0) && see_reserve_beyond(line_buffer + 6)){
                 line_buffer += 6;
                 cur = new_token(TT_KEYWORD, cur, "method", 6);
+                cur->word = KW_METHOD;
             } else if((strncmp(line_buffer, "field", 5) == 0) && see_reserve_beyond(line_buffer + 6)){
                 line_buffer += 5;
                 cur = new_token(TT_KEYWORD, cur, "field", 5);
+                cur->word = KW_FIELD;
             } else if((strncmp(line_buffer, "class", 5) == 0) && see_reserve_beyond(line_buffer + 5)){
                 line_buffer += 5;
                 cur = new_token(TT_KEYWORD, cur, "class", 5);
+                cur->word = KW_CLASS;
             } else if((strncmp(line_buffer, "false", 5) == 0) && see_reserve_beyond(line_buffer + 5)){
                 line_buffer += 5;
                 cur = new_token(TT_KEYWORD, cur, "false", 5);
+                cur->word = KW_FALSE;
             } else if((strncmp(line_buffer, "while", 5) == 0) && see_reserve_beyond(line_buffer + 5)){
                 line_buffer += 5;
                 cur = new_token(TT_KEYWORD, cur, "while", 5);
+                cur->word = KW_WHILE;
             } else if((strncmp(line_buffer, "char", 4) == 0) && see_reserve_beyond(line_buffer + 5)){
                 line_buffer += 4;
                 cur = new_token(TT_KEYWORD, cur, "char", 4);
+                cur->word = KW_CHAR;
             } else if((strncmp(line_buffer, "void", 4) == 0) && see_reserve_beyond(line_buffer + 4)){
                 line_buffer += 4;
                 cur = new_token(TT_KEYWORD, cur, "void", 4);
+                cur->word = KW_VOID;
             } else if((strncmp(line_buffer, "true", 4) == 0) && see_reserve_beyond(line_buffer + 4)){
                 line_buffer += 4;
                 cur = new_token(TT_KEYWORD, cur, "true", 4);
+                cur->word = KW_TRUE;
             } else if((strncmp(line_buffer, "null", 4) == 0) && see_reserve_beyond(line_buffer + 4)){
                 line_buffer += 4;
                 cur = new_token(TT_KEYWORD, cur, "null", 4);
+                cur->word = KW_NULL;
             } else if((strncmp(line_buffer, "this", 4) == 0) && see_reserve_beyond(line_buffer + 4)){
                 line_buffer += 4;
                 cur = new_token(TT_KEYWORD, cur, "this", 4);
+                cur->word = KW_THIS;
             } else if((strncmp(line_buffer, "else", 4) == 0) && see_reserve_beyond(line_buffer + 4)){
                 line_buffer += 4;
                 cur = new_token(TT_KEYWORD, cur, "else", 4);
+                cur->word = KW_ELSE;
             } else if((strncmp(line_buffer, "var", 3) == 0) && see_reserve_beyond(line_buffer + 3)){
                 line_buffer += 3;
                 cur = new_token(TT_KEYWORD, cur, "var", 3);
+                cur->word = KW_VAR;
             } else if((strncmp(line_buffer, "int", 3) == 0) && see_reserve_beyond(line_buffer + 3)){
                 line_buffer += 3;
                 cur = new_token(TT_KEYWORD, cur, "int", 3);
+                cur->word = KW_INT;
             } else if((strncmp(line_buffer, "let", 3) == 0) && see_reserve_beyond(line_buffer + 3)){
                 cur = new_token(TT_KEYWORD, cur, line_buffer, 3);
                 line_buffer += 3;
+                cur->word = KW_LET;
             } else if((strncmp(line_buffer, "do", 2) == 0) && see_reserve_beyond(line_buffer + 2)){
                 line_buffer += 2;
                 cur = new_token(TT_KEYWORD, cur, "do", 2);
+                cur->word = KW_DO;
             } else if((strncmp(line_buffer, "if", 2) == 0) && see_reserve_beyond(line_buffer + 2)){
                 cur = new_token(TT_KEYWORD, cur, line_buffer, 2);
                 line_buffer += 2;
+                cur->word = KW_IF;
             } else if(addr_buffer = strchr("{}()[].,;+-*/&|<>=~", *line_buffer)){
                 cur = new_token(TT_SYMBOL, cur, addr_buffer, 1);
                 line_buffer++;

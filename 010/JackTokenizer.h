@@ -18,7 +18,7 @@ typedef enum {
     KW_VAR,
     KW_STATIC,
     KW_FIELD,
-    KW_KET,
+    KW_LET,
     KW_DO,
     KW_IF,
     KW_ELSE,
@@ -33,6 +33,7 @@ typedef enum {
 typedef struct Token Token;
 struct Token {
     TokenType type;
+    KeyWord word;
     Token *next;
     char *str;
     int len;
