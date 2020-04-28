@@ -69,16 +69,50 @@ void class(){
 }
     
 void classVarDec(){
-        if((keyWord() == KW_STATIC) || (keyWord() == KW_FIELD)){
-            
-        } else {
-            break; 
+    if((keyWord() == KW_STATIC) || (keyWord() == KW_FIELD)){
+        printf("<classVarDec>\n\t");
+        printf("<keyword> %s </keyword>\n", stringVal());
+        advance();
+        printf("<keyword> %s </keyword>\n", stringVal());
+        advance();
+        printf("<identifier> %s </identifier>\n", identifier());
+        advance();
+        while(symbol() != ';'){
+            printf("<symbol> %c </symbol>\n", symbol());
+            advance();
+            printf("<identifier> %s </identifier>\n", identifier());
+            advance();
         }
+        printf("<symbol> %c </symbol>\n", symbol());
+        printf("</classVarDec>\n\t");
+        advance();
+    } else {
+        break; 
+    }
 }
 void subroutineDec(){
-        if((keyWord() == KW_CONSTRUCTOR) || (keyWord() == KW_FUNCTION) || (keyWord() == KW_METHOD)){
-
+    if((keyWord() == KW_CONSTRUCTOR) || (keyWord() == KW_FUNCTION) || (keyWord() == KW_METHOD)){
+        printf("<subroutineDec>\n");
+        printf("<keyword> %s </keyword>\n", stringVal());
+        advance();
+        printf("<keyword> %s </keyword>\n", stringVal());
+        advance();
+        printf("<identifier> %s </identifier>\n", identifier());
+        advance();
+        if(symbol() == '('){
+            advance();
+            parameterList();
         } else {
-            break;
+            exit(1);
         }
+        if(symbol() == ')'){
+            advance();
+        } else {
+            exit(1);
+        }
+        subroutineBody();
+        printf("</subroutineDec>\n");
+    } else {
+        break;
+    }
 }
