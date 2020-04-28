@@ -13,7 +13,7 @@ void consume_symbol(char sym){
 }
 
 void compileClass(){
-    printf("<class>\n\t");
+    printf("<class>\n");
     if(keyWord() == KW_CLASS){
         printf("<keyword> %s </keyword>\n", stringVal());
         advance();
@@ -34,18 +34,19 @@ void compileClass(){
         }
     }
     while(1){
-    if((keyWord() == KW_CONSTRUCTOR) || (keyWord() == KW_FUNCTION) || (keyWord() == KW_METHOD)){
+    if((keyWord() == KW_CONSTRUCTOR) || (keyWord() == KW_FUNCTION) || (keyWord() == KW_METHOD)){ 
             subroutineDec();
         } else {
             break;
         }
     }
     consume_symbol('}');
+    printf("</class>\n");
     return;
 }
     
 void classVarDec(){
-    printf("<classVarDec>\n\t");
+    printf("<classVarDec>\n");
     printf("<keyword> %s </keyword>\n", stringVal());
     advance();
     printf("<keyword> %s </keyword>\n", stringVal());
@@ -58,7 +59,7 @@ void classVarDec(){
         advance();
     }
     consume_symbol(';');
-    printf("</classVarDec>\n\t");
+    printf("</classVarDec>\n");
     return;
 }
 
@@ -302,7 +303,7 @@ void subroutineCall(){
         consume_symbol(')');
     } else {
         consume_symbol('.');
-        printf("<identifier> %s </identifer>\n", identifier());
+        printf("<identifier> %s </identifier>\n", identifier());
         advance();
         consume_symbol('(');
         expressionList();
