@@ -214,8 +214,6 @@ void letStatement(){
     return;
 }
 
-
-
 void ifStatement(){
     printf("<ifStatement>\n");
     printf("<keyword> %s </keyword>\n", stringVal());
@@ -226,5 +224,49 @@ void ifStatement(){
     consume_symbol('{');
     statements();
     consume_symbol('}');
+    if(keyWord() == 'KW_ELSE'){
+        printf("<keyword> %s </keyword>\n", stringVal());
+        advance();
+        consume_symbol('{');
+        statements();
+        consume_symbol('}');
+    }
     printf("</ifStatement>\n");
+    return;
+}
+
+void whileStatement(){
+    printf("<whileStatement>\n");
+    printf("<keyword> %s </keyword>\n", stringVal());
+    advance();
+    consume_symbol('(');
+    expression();
+    consume_symbol(')');
+    consume_symbol('{');
+    statements();
+    consume_symbol('}');
+    printf("</whileStatement>\n");
+    return;
+}
+
+void doStatement(){
+    printf("<doStatement>\n");
+    printf("<keyword> %s </keyword>\n", stringVal());
+    advance();
+    subroutineCall();
+    consume_symbol(';');
+    printf("</doStatement>\n");
+    return;
+}
+
+void returnStatement(){
+    printf("<returnStatement>\n");
+    printf("<keyword> %s </keyword>\n", stringVal());
+    advance();
+    if(symbol() != ';'){
+        expression();
+    }
+    consume_symbol(';');
+    printf("</returnStatement>\n");
+    return;
 }
