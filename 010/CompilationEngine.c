@@ -1,39 +1,5 @@
-typedef enum {
-    ND_CLASS,
-    ND_CLASS_VAR_DEC,
-    ND_TYPE,
-    ND_SUBROUTINE_DEC,
-    ND_PARAMETER_LIST,
-    ND_SUBROUTINE_BODY,
-    ND_VAR_DEC,
-    ND_CLASS_NAME,
-    ND_SUBROUTINE_NAME,
-    ND_VAR_NAME,
-    ND_STATEMENTS,
-    ND_STATEMENT,
-    ND_LET_STATEMENT,
-    ND_IF_STATEMENT,
-    ND_WHILE_STATEMENT,
-    ND_DO_STATEMENT,
-    ND_RETURN_STATEMENT,
-    ND_EXPRESSION,
-    ND_TERM,
-    ND_SUBROUTINE_CALL,
-    ND_EXPRESSION_LIST,
-    ND_OP,
-    ND_UNARY_OP,
-    ND_KEYWORD_CONSTANT
-} NodeKind;
-
-typedef struct Node Node;
-struct Node {
-    NodeKind kind;
-    Node *lhs;
-    Node *rhs;
-    KeyWord word;
-    int val;
-    char *str;
-};
+#include"JackTokenizer.h"
+#include"CompilationEngine.h"
 
 void consume_symbol(char sym){
     if(symbol() == sym){
@@ -46,7 +12,7 @@ void consume_symbol(char sym){
     }
 }
 
-void class(){
+void compileClass(){
     printf("<class>\n\t");
     if(keyWord() == KW_CLASS){
         printf("<keyword> %s </keyword>\n", stringVal());
@@ -93,7 +59,6 @@ void classVarDec(){
     }
     consume_symbol(';');
     printf("</classVarDec>\n\t");
-    advance();
     return;
 }
 
@@ -224,7 +189,7 @@ void ifStatement(){
     consume_symbol('{');
     statements();
     consume_symbol('}');
-    if(keyWord() == 'KW_ELSE'){
+    if(keyWord() == KW_ELSE){
         printf("<keyword> %s </keyword>\n", stringVal());
         advance();
         consume_symbol('{');
@@ -252,6 +217,8 @@ void whileStatement(){
 void doStatement(){
     printf("<doStatement>\n");
     printf("<keyword> %s </keyword>\n", stringVal());
+    advance();
+    printf("<identifier> %s </identifier>\n", identifier());
     advance();
     subroutineCall();
     consume_symbol(';');
@@ -286,7 +253,7 @@ void expression(){
                 consume_symbol(symbol());
                 term();
           }
-    printf("/<expression>\n");
+    printf("</expression>\n");
     return;
 }
 
@@ -322,8 +289,6 @@ void term(){
         } else if((symbol() == '(') || symbol() == '.'){
             subroutineCall();
         } else {
-            printf("<identifier> %s </identifier>\n", identifier());
-            advance();
         }
     }
     printf("</term>\n");

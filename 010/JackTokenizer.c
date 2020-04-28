@@ -1,11 +1,4 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<stdbool.h>
-#include<string.h>
-#include<ctype.h>
 #include"JackTokenizer.h"
-
-Token *token;
 
 bool see_reserve_beyond(char *beyond){
     if(strchr(" {}()[].,;=^*/&|<>=~", *beyond) != NULL){
@@ -81,7 +74,7 @@ Token *tokenize(char *filename){
                 line_buffer += 6;
                 cur = new_token(TT_KEYWORD, cur, "method", 6);
                 cur->word = KW_METHOD;
-            } else if((strncmp(line_buffer, "field", 5) == 0) && see_reserve_beyond(line_buffer + 6)){
+            } else if((strncmp(line_buffer, "field", 5) == 0) && see_reserve_beyond(line_buffer + 5)){
                 line_buffer += 5;
                 cur = new_token(TT_KEYWORD, cur, "field", 5);
                 cur->word = KW_FIELD;
@@ -192,33 +185,4 @@ int intVal(){
 }
 char *stringVal(){
     return token->str;
-}
-
-int main(int argc, char *argv[]){
-    token = tokenize(argv[1]);
-
-    printf("<tokens>\n");
-    do{
-        switch(tokenType()){
-            case TT_KEYWORD:
-                printf("\t<keyword> %s </keyword>\n", stringVal());
-                break;
-            case TT_SYMBOL:
-                printf("\t<symbol> %c </symbol>\n", symbol());
-                break;
-            case TT_IDENTIFIER:
-                printf("\t<identifier> %s </identifier>\n", identifier());
-                break;
-            case TT_INT_CONST:
-                printf("\t<integerConstant> %d\n\t</integerConstant>\n", intVal());
-                break;
-            case TT_STRING_CONST:
-                printf("\t<stringConstant> %s\n\t</stringConstant>\n", stringVal());
-                break;
-        }
-        advance();
-    }while(hasMoreTokens());
-    printf("</tokens>\n");
-
-    return 0;
 }

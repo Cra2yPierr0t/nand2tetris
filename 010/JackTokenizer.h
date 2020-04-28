@@ -1,3 +1,9 @@
+#include<stdbool.h>
+#include<stdio.h>
+#include<stdbool.h>
+#include<string.h>
+#include<ctype.h>
+#include<stdlib.h>
 typedef enum {
     TT_KEYWORD,
     TT_SYMBOL,
@@ -39,6 +45,8 @@ struct Token {
     int len;
     int val;
 };
+
+Token *token;
 
 bool see_reserve_beyond(char *);
 Token *new_token(TokenType, Token *, char *, int);
