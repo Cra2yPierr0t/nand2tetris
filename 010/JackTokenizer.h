@@ -47,7 +47,7 @@ Token *tokenize(char *);
 bool        hasMoreTokens(void);
 void        advance(void);
 TokenType   tokenType(void);
-char*       keyWord(void);
+KeyWord     keyWord(void);
 char        symbol(void);
 char*       identifier(void);
 int         intVal(void);

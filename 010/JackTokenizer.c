@@ -178,8 +178,8 @@ void advance(){
 TokenType tokenType(){
     return token->type;
 }
-char *keyWord(){
-    return token->str;
+KeyWord keyWord(){
+    return token->word;
 }
 char symbol(){
     return (token->str)[0];
@@ -201,7 +201,7 @@ int main(int argc, char *argv[]){
     do{
         switch(tokenType()){
             case TT_KEYWORD:
-                printf("\t<keyword> %s </keyword>\n", keyWord());
+                printf("\t<keyword> %s </keyword>\n", stringVal());
                 break;
             case TT_SYMBOL:
                 printf("\t<symbol> %c </symbol>\n", symbol());
