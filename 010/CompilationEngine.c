@@ -90,6 +90,7 @@ void classVarDec(){
         break; 
     }
 }
+
 void subroutineDec(){
     if((keyWord() == KW_CONSTRUCTOR) || (keyWord() == KW_FUNCTION) || (keyWord() == KW_METHOD)){
         printf("<subroutineDec>\n");
@@ -100,12 +101,14 @@ void subroutineDec(){
         printf("<identifier> %s </identifier>\n", identifier());
         advance();
         if(symbol() == '('){
+            printf("<symbol> %c </symbol>\n", symbol());
             advance();
             parameterList();
         } else {
             exit(1);
         }
         if(symbol() == ')'){
+            printf("<symbol> %c </symbol>\n", symbol());
             advance();
         } else {
             exit(1);
@@ -115,4 +118,19 @@ void subroutineDec(){
     } else {
         break;
     }
+}
+
+void parameterList(){
+    if(symbol() == ')'){
+        return;
+    } else {
+        printf("<keyword> %s </keyword>\n", stringVal());
+        advance();
+        printf("<identifier> %s </identifier>\n", identifier());
+        advance();
+    }
+}
+
+void subroutineBody(){
+
 }
