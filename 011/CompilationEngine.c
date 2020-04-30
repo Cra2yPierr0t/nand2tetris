@@ -51,7 +51,13 @@ Node *num();
 Node *ident();
 
 Node *stmt(){
-    Node *node expr();
+    Node *node;
+    if(keyWord() == KW_RETURN){
+        advance();
+        node = expr();
+    } else {
+        node = expr();
+    }
     consume_symbol(';');
     return node;
 }
