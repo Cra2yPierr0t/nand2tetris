@@ -1,6 +1,10 @@
 #include"JackTokenizer.h"
 
 typedef enum{
+    ND_IF,
+    ND_RETURN,
+    ND_WHILE,
+    ND_FOR,
     ND_ADD,
     ND_SUB,
     ND_MUL,
@@ -19,6 +23,8 @@ struct Node {
     NodeType type;
     Node *rhs;
     Node *lhs;
+    Node *expr; //condition
+    Node *stmt; //stmt
     int val;
     char *str;
 }
@@ -54,7 +60,24 @@ Node *stmt(){
     Node *node;
     if(keyWord() == KW_RETURN){
         advance();
-        node = expr();
+        node->type = ND_RETURN;
+        node->expr = expr();
+    } else if(keyWord() == KW_IF){
+        advance();
+        node->type = ND_IF;
+        consume_symbol('(');
+        node->expr = expr(); 
+        consume_symbol(')');
+        node->stmt = stmt();
+    } else if(keyWord() == ND_WHILE){
+        advance();
+        node->type = ND_WHILE;
+        consume_symbol('(');
+        node->expr = expr();
+        consume_symbol(')');
+        node->stmt = stmt();
+    } else if(keyWord() == ND_FOR){
+        //for
     } else {
         node = expr();
     }
