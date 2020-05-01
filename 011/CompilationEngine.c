@@ -5,6 +5,7 @@ typedef enum{
     ND_RETURN,
     ND_WHILE,
     ND_FOR,
+    ND_BLOCK,
     ND_ADD,
     ND_SUB,
     ND_MUL,
@@ -25,8 +26,29 @@ struct Node {
     Node *lhs;
     Node *expr; //condition
     Node *stmt; //stmt
+    Stmts_vec *stmts;
+    Stmts_vec *args;
     int val;
     char *str;
+}
+typedef struct Stmts_vec Stmts_vec;
+struct Stmts_vec {
+    Node *stmt;
+    Stmts_vec *next;
+}
+
+Stmts_vec *new_ary(){
+    Stmts_vec *vec = malloc(sizeof(Stmts_vec));
+    vec->next = NULL;
+    return vec;
+}
+void ary_push(Stmts_vec *vec, Node *stmt){
+    while(vec->next){
+        vec = vec->next;
+    }
+    vec->next = new_ary();
+    vec->next->stmt = stmt;
+    return;
 }
 
 Node *new_node(NodeType type, Node *lhs, Node *rhs){
@@ -69,6 +91,7 @@ Node *stmt(){
         node->expr = expr(); 
         consume_symbol(')');
         node->stmt = stmt();
+        return node;
     } else if(keyWord() == ND_WHILE){
         advance();
         node->type = ND_WHILE;
@@ -76,8 +99,18 @@ Node *stmt(){
         node->expr = expr();
         consume_symbol(')');
         node->stmt = stmt();
+        return node;
     } else if(keyWord() == ND_FOR){
         //for
+    } else if(symbol() == '{'){
+        consume_symbol('{');
+        node->type = ND_BLOCK;
+        node->stmts = new_ary();
+        while(symbol() != '}'){
+            ary_push(node->stmts, stmt());
+        }
+        consume_symbol('}');
+        return node;
     } else {
         node = expr();
     }
@@ -179,6 +212,10 @@ Node primary(){
         consume_symbol(')');
     } else if(tokenType() == TT_IDENTIFIER){
         node = new_node_ident(identifier());
+        if(symbol() == '('){
+            consume_symbol('(');
+            consume_symbol(')');
+        }
     } else if(tokenType() == TT_INT_CONST){
         node = new_node_num(intVal());
     }
